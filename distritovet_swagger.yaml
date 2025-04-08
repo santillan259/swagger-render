@@ -1,0 +1,414 @@
+openapi: 3.0.3
+info:
+  title: Prosync Odoo API
+  description: API REST para la gestión de clientes en Odoo, específicamente para la empresa DistritoVet (company_id=3 o 2 según el endpoint). Permite obtener, listar, crear y actualizar clientes.
+  version: 1.0.0
+  contact:
+    name: Prosync Support
+    email: contacto@prosync.com
+servers:
+  - url: https://your-odoo-instance.com
+    description: Servidor principal de Odoo
+
+paths:
+  /api/customer/get:
+    get:
+      summary: Obtener información de un cliente por ID
+      description: Devuelve la información detallada de un cliente específico, pero solo si pertenece a la empresa con company_id=3 (DistritoVet).
+      operationId: getCustomerById
+      parameters:
+        - name: id
+          in: query
+          description: ID del cliente a buscar
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Cliente encontrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Falta el parámetro id o el ID es inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Falta el parámetro id"
+        '404':
+          description: Cliente no encontrado en la empresa DistritoVet
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Cliente no encontrado en la empresa DistritoVet"
+
+  /api/customers_list:
+    get:
+      summary: Listar clientes de DistritoVet (paginado)
+      description: Retorna un listado paginado de clientes que pertenecen a la empresa DistritoVet (company_id=2).
+      operationId: getCustomersList
+      parameters:
+        - name: page
+          in: query
+          description: Número de página para la paginación
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: itemsPerPage
+          in: query
+          description: Cantidad de elementos por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Lista de clientes obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomersListResponse'
+        '400':
+          description: Parámetros de paginación inválidos
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Los parámetros 'page' y 'itemsPerPage' deben ser números enteros."
+
+  /api/customer:
+    post:
+      summary: Crear un nuevo cliente
+      description: Crea un nuevo cliente en Odoo para la empresa con company_id=3. Requiere al menos los campos name, email y phone.
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomerRequest'
+      responses:
+        '200':
+          description: Cliente creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCustomerResponse'
+        '400':
+          description: Faltan campos obligatorios o error al crear el cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      summary: Actualizar un cliente existente
+      description: Actualiza los datos de un cliente existente en Odoo, pero solo si pertenece a la empresa con company_id=3.
+      operationId: updateCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCustomerRequest'
+      responses:
+        '200':
+          description: Cliente actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateCustomerResponse'
+        '400':
+          description: Falta el campo id o no se enviaron campos válidos para actualizar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        name:
+          type: string
+          example: "Juan Pérez"
+        display_name:
+          type: string
+          example: "Juan Pérez"
+        street:
+          type: string
+          example: "Av. Insurgentes 123"
+        street_name:
+          type: string
+          example: "Insurgentes"
+        street_number:
+          type: string
+          example: "123"
+        colony:
+          type: string
+          example: "Condesa"
+        city:
+          type: string
+          example: "Ciudad de México"
+        state:
+          type: string
+          example: "Ciudad de México"
+        zip:
+          type: string
+          example: "06100"
+        country:
+          type: string
+          example: "México"
+        phone:
+          type: string
+          example: "+525512345678"
+        email:
+          type: string
+          example: "juan.perez@example.com"
+        rfc:
+          type: string
+          example: "PEJU800101XXX"
+        license_operator_id:
+          type: string
+          example: "LIC123456"
+        usage_id:
+          type: string
+          example: "G03"
+        payment_method_id:
+          type: string
+          example: "Inmediato"
+        curp:
+          type: string
+          example: "PEJU800101HDFXXX01"
+        category:
+          type: string
+          example: "Cliente Regular"
+        seller_id:
+          type: string
+          example: "Vendedor 1"
+        company_id:
+          type: integer
+          example: 3
+        company_name:
+          type: string
+          example: "DistritoVet"
+
+    CustomersListResponse:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          example: 50
+        itemsPerPage:
+          type: integer
+          example: 10
+        page:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 5
+        nextPage:
+          type: integer
+          nullable: true
+          example: 2
+        previousPage:
+          type: integer
+          nullable: true
+          example: null
+        customers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
+
+    CreateCustomerRequest:
+      type: object
+      required:
+        - name
+        - email
+        - phone
+      properties:
+        name:
+          type: string
+          example: "Juan Pérez"
+        email:
+          type: string
+          example: "juan.perez@example.com"
+        phone:
+          type: string
+          example: "+525512345678"
+        display_name:
+          type: string
+          example: "Juan Pérez"
+        street:
+          type: string
+          example: "Av. Insurgentes 123"
+        street_name:
+          type: string
+          example: "Insurgentes"
+        street_number:
+          type: string
+          example: "123"
+        colony:
+          type: string
+          example: "Condesa"
+        city:
+          type: string
+          example: "Ciudad de México"
+        state:
+          type: integer
+          example: 9  # ID del estado en Odoo
+        zip:
+          type: string
+          example: "06100"
+        country:
+          type: integer
+          example: 156  # ID del país en Odoo (México)
+        rfc:
+          type: string
+          example: "PEJU800101XXX"
+        license_operator_id:
+          type: string
+          example: "LIC123456"
+        usage_id:
+          type: string
+          example: "G03"
+        payment_method_id:
+          type: integer
+          example: 1  # ID del método de pago en Odoo
+        curp:
+          type: string
+          example: "PEJU800101HDFXXX01"
+        category:
+          type: integer
+          example: 5  # ID de la categoría en Odoo
+        seller_id:
+          type: integer
+          example: 2  # ID del vendedor en Odoo
+
+    CreateCustomerResponse:
+      type: object
+      properties:
+        result:
+          type: string
+          example: "success"
+        userCreated:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 123
+            name:
+              type: string
+              example: "Juan Pérez"
+            email:
+              type: string
+              example: "juan.perez@example.com"
+            phone:
+              type: string
+              example: "+525512345678"
+
+    UpdateCustomerRequest:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          example: 123
+        name:
+          type: string
+          example: "Juan Pérez Actualizado"
+        display_name:
+          type: string
+          example: "Juan Pérez Actualizado"
+        street:
+          type: string
+          example: "Av. Reforma 456"
+        street_name:
+          type: string
+          example: "Reforma"
+        street_number:
+          type: string
+          example: "456"
+        colony:
+          type: string
+          example: "Polanco"
+        city:
+          type: string
+          example: "Ciudad de México"
+        state:
+          type: integer
+          example: 9
+        zip:
+          type: string
+          example: "06500"
+        country:
+          type: integer
+          example: 156
+        phone:
+          type: string
+          example: "+525598765432"
+        email:
+          type: string
+          example: "juan.perez.nuevo@example.com"
+        rfc:
+          type: string
+          example: "PEJU800101XXX"
+        license_operator_id:
+          type: string
+          example: "LIC654321"
+        usage_id:
+          type: string
+          example: "P01"
+        payment_method_id:
+          type: integer
+          example: 2
+        curp:
+          type: string
+          example: "PEJU800101HDFXXX02"
+        category:
+          type: integer
+          example: 6
+        seller_id:
+          type: integer
+          example: 3
+        company_id:
+          type: integer
+          example: 3
+
+    UpdateCustomerResponse:
+      type: object
+      properties:
+        result:
+          type: string
+          example: "success"
+        message:
+          type: string
+          example: "Cliente actualizado correctamente"
+        updatedCustomer:
+          $ref: '#/components/schemas/Customer'
+
+    ErrorResponse:
+      type: object
+      properties:
+        result:
+          type: string
+          example: "error"
+        message:
+          type: string
+          example: "Faltan los campos obligatorios: name, email"
