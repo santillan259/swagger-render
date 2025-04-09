@@ -1,18 +1,24 @@
 openapi: 3.0.3
 info:
-  title: Prosync Odoo API
-  description: API REST para la gestión de clientes en Odoo, específicamente para la empresa DistritoVet (company_id=3 o 2 según el endpoint). Permite obtener, listar, buscar, crear y actualizar clientes.
-  version: 1.0.1
+  title: DristritoVet Odoo API
+  description: API REST para la gestión de recursos en Odoo, específicamente para la empresa DistritoVet (company_id=3).
+  version: 1.0.0
   contact:
-    name: Prosync Support
-    email: contacto@prosync.com.mx
+    name: Juan Francisco Santillan Valenzuela
+    email: jfsantillan@impotrade.com.mx
 servers:
   - url: https://your-odoo-instance.com
     description: Servidor principal de Odoo
 
+tags:
+  - name: Customers
+    description: Endpoints relacionados con la gestión de clientes en Odoo para la empresa DistritoVet.
+
 paths:
   /api/customer/get:
     get:
+      tags:
+        - Customers
       summary: Obtener información de un cliente por ID
       description: Devuelve la información detallada de un cliente específico, pero solo si pertenece a la empresa con company_id=3 (DistritoVet).
       operationId: getCustomerById
@@ -47,6 +53,8 @@ paths:
 
   /api/customers_list:
     get:
+      tags:
+        - Customers
       summary: Listar clientes de DistritoVet (paginado)
       description: Retorna un listado paginado de clientes que pertenecen a la empresa DistritoVet (company_id=2).
       operationId: getCustomersList
@@ -82,6 +90,8 @@ paths:
 
   /api/customer_search:
     get:
+      tags:
+        - Customers
       summary: Buscar clientes por texto
       description: Busca clientes en la empresa DistritoVet (company_id=3) según un texto que coincida con el nombre, email o teléfono. Retorna un listado paginado.
       operationId: customerSearch
@@ -124,6 +134,8 @@ paths:
 
   /api/customer:
     post:
+      tags:
+        - Customers
       summary: Crear un nuevo cliente
       description: Crea un nuevo cliente en Odoo para la empresa con company_id=3. Requiere al menos los campos name, email y phone.
       operationId: createCustomer
@@ -148,6 +160,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
     patch:
+      tags:
+        - Customers
       summary: Actualizar un cliente existente
       description: Actualiza los datos de un cliente existente en Odoo, pero solo si pertenece a la empresa con company_id=3.
       operationId: updateCustomer
