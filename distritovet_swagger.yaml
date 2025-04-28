@@ -1,144 +1,78 @@
 openapi: 3.0.3
 info:
-  title: DristritoVet Odoo API
-  description: API REST para la gestión de recursos en Odoo, específicamente para la empresa DistritoVet (company_id=3).
+  title: Odoo Customer API
+  description: API para gestionar clientes en Odoo (Distrito Vet)
   version: 1.0.0
-  contact:
-    name: Juan Francisco Santillan Valenzuela
-    email: jfsantillan@impotrade.com.mx
 servers:
-  - url: https://becken-op-impotrade-test-impotrade-19276372.dev.odoo.com/
-    description: Estancia de Pruebas Odoo
-
-tags:
-  - name: Customers
-    description: Endpoints relacionados con la gestión de clientes en Odoo para la empresa DistritoVet.
-
+  - url: http://your_odoo_server
+    description: Servidor principal de Odoo
 paths:
   /api/customer/get:
     get:
-      tags:
-        - Customers
-      summary: Obtener información de un cliente por ID
-      description: Devuelve la información detallada de un cliente específico, pero solo si pertenece a la empresa con company_id=3 (DistritoVet).
-      operationId: getCustomerById
+      summary: Obtener un cliente por ID
+      description: Devuelve la información de un cliente específico de la empresa con company_id = 3.
       parameters:
         - name: id
           in: query
-          description: ID del cliente a buscar
           required: true
           schema:
             type: integer
+          description: ID del cliente a consultar
       responses:
         '200':
-          description: Cliente encontrado exitosamente
+          description: Cliente encontrado
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Customer'
         '400':
-          description: Falta el parámetro id o el ID es inválido
+          description: Falta el parámetro ID o ID inválido
           content:
             text/plain:
               schema:
                 type: string
-                example: "Falta el parámetro id"
         '404':
-          description: Cliente no encontrado en la empresa DistritoVet
+          description: Cliente no encontrado
           content:
             text/plain:
               schema:
                 type: string
-                example: "Cliente no encontrado en la empresa DistritoVet"
-
   /api/customers_list:
     get:
-      tags:
-        - Customers
-      summary: Listar clientes de DistritoVet (paginado)
-      description: Retorna un listado paginado de clientes que pertenecen a la empresa DistritoVet (company_id=2).
-      operationId: getCustomersList
+      summary: Listar clientes paginados
+      description: Retorna un listado paginado de clientes de la empresa con company_id = 2.
       parameters:
         - name: page
           in: query
-          description: Número de página para la paginación
           required: false
           schema:
             type: integer
             default: 1
+          description: Número de página
         - name: itemsPerPage
           in: query
-          description: Cantidad de elementos por página
           required: false
           schema:
             type: integer
             default: 10
+          description: Cantidad de elementos por página
       responses:
         '200':
-          description: Lista de clientes obtenida exitosamente
+          description: Lista de clientes paginada
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomersListResponse'
+                $ref: '#/components/schemas/PaginatedCustomers'
         '400':
           description: Parámetros de paginación inválidos
           content:
             text/plain:
               schema:
                 type: string
-                example: "Los parámetros 'page' y 'itemsPerPage' deben ser números enteros."
-
-  /api/customer_search:
-    get:
-      tags:
-        - Customers
-      summary: Buscar clientes por texto
-      description: Busca clientes en la empresa DistritoVet (company_id=3) según un texto que coincida con el nombre, email o teléfono. Retorna un listado paginado.
-      operationId: customerSearch
-      parameters:
-        - name: search
-          in: query
-          description: Texto para buscar en los campos nombre, email o teléfono del cliente
-          required: true
-          schema:
-            type: string
-            example: "Juan"
-        - name: page
-          in: query
-          description: Número de página para la paginación
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: itemsPerPage
-          in: query
-          description: Cantidad de elementos por página
-          required: false
-          schema:
-            type: integer
-            default: 10
-      responses:
-        '200':
-          description: Lista de clientes obtenida exitosamente
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CustomersListResponse'
-        '400':
-          description: Falta el parámetro 'search' o los parámetros de paginación son inválidos
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "El parámetro 'search' es obligatorio."
-
-  /api/customer:
+  /api/customer/post:
     post:
-      tags:
-        - Customers
       summary: Crear un nuevo cliente
-      description: Crea un nuevo cliente en Odoo para la empresa con company_id=3. Requiere al menos los campos name, email y phone.
-      operationId: createCustomer
+      description: Crea un cliente en Odoo para la empresa con company_id = 3.
       requestBody:
         required: true
         content:
@@ -151,20 +85,29 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateCustomerResponse'
+                type: object
+                properties:
+                  result:
+                    type: string
+                    enum: [success]
+                  userCreated:
+                    $ref: '#/components/schemas/NewCustomerResponse'
         '400':
-          description: Faltan campos obligatorios o error al crear el cliente
+          description: Faltan campos obligatorios o error en la creación
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    patch:
-      tags:
-        - Customers
+                type: object
+                properties:
+                  result:
+                    type: string
+                    enum: [error]
+                  message:
+                    type: string
+  /api/customer/patch:
+    put:
       summary: Actualizar un cliente existente
-      description: Actualiza los datos de un cliente existente en Odoo, pero solo si pertenece a la empresa con company_id=3.
-      operationId: updateCustomer
+      description: Actualiza un cliente en Odoo con los datos proporcionados (company_id = 3).
       requestBody:
         required: true
         content:
@@ -177,20 +120,77 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateCustomerResponse'
+                type: object
+                properties:
+                  result:
+                    type: string
+                    enum: [success]
+                  message:
+                    type: string
+                  updatedCustomer:
+                    $ref: '#/components/schemas/Customer'
         '400':
-          description: Falta el campo id o no se enviaron campos válidos para actualizar
+          description: Falta el campo ID o no se enviaron campos válidos
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                type: object
+                properties:
+                  result:
+                    type: string
+                    enum: [error]
+                  message:
+                    type: string
         '404':
           description: Cliente no encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
+                type: object
+                properties:
+                  result:
+                    type: string
+                    enum: [error]
+                  message:
+                    type: string
+  /api/customer_search:
+    get:
+      summary: Buscar clientes por nombre, email o teléfono
+      description: Busca clientes en la empresa con company_id = 3 según un texto de búsqueda.
+      parameters:
+        - name: search
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Texto para buscar (en nombre, email o teléfono)
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Número de página
+        - name: itemsPerPage
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Cantidad de elementos por página
+      responses:
+        '200':
+          description: Lista de clientes encontrados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCustomers'
+        '400':
+          description: Falta el parámetro de búsqueda o parámetros inválidos
+          content:
+            text/plain:
+              schema:
+                type: string
 components:
   schemas:
     Customer:
@@ -198,273 +198,200 @@ components:
       properties:
         id:
           type: integer
-          example: 123
         name:
           type: string
-          example: "Juan Pérez"
         display_name:
           type: string
-          example: "Juan Pérez"
         street:
           type: string
-          example: "Av. Insurgentes 123"
+          nullable: true
         street_name:
           type: string
-          example: "Insurgentes"
+          nullable: true
         street_number:
           type: string
-          example: "123"
+          nullable: true
         colony:
           type: string
-          example: "Condesa"
+          nullable: true
         city:
           type: string
-          example: "Ciudad de México"
+          nullable: true
         state:
           type: string
-          example: "Ciudad de México"
+          nullable: true
         zip:
           type: string
-          example: "06100"
+          nullable: true
         country:
           type: string
-          example: "México"
+          nullable: true
         phone:
           type: string
-          example: "+525512345678"
         email:
           type: string
-          example: "juan.perez@example.com"
+          nullable: true
         rfc:
           type: string
-          example: "PEJU800101XXX"
+          nullable: true
         license_operator_id:
           type: string
-          example: "LIC123456"
+          nullable: true
         usage_id:
           type: string
-          example: "G03"
+          nullable: true
         payment_method_id:
           type: string
-          example: "Inmediato"
+          nullable: true
         curp:
           type: string
-          example: "PEJU800101HDFXXX01"
+          nullable: true
         category:
           type: string
-          example: "Cliente Regular"
+          nullable: true
         seller_id:
           type: string
-          example: "Vendedor 1"
+          nullable: true
         company_id:
           type: integer
-          example: 3
         company_name:
           type: string
-          example: "DistritoVet"
-
-    CustomersListResponse:
+      required:
+        - id
+        - name
+        - company_id
+    PaginatedCustomers:
       type: object
       properties:
         totalItems:
           type: integer
-          example: 50
         itemsPerPage:
           type: integer
-          example: 10
         page:
           type: integer
-          example: 1
         totalPages:
           type: integer
-          example: 5
         nextPage:
           type: integer
           nullable: true
-          example: 2
         previousPage:
           type: integer
           nullable: true
-          example: null
         customers:
           type: array
           items:
             $ref: '#/components/schemas/Customer'
-
+      required:
+        - totalItems
+        - itemsPerPage
+        - page
+        - totalPages
+        - customers
     CreateCustomerRequest:
       type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        display_name:
+          type: string
+        street:
+          type: string
+        street_name:
+          type: string
+        street_number:
+          type: string
+        colony:
+          type: string
+        city:
+          type: string
+        state:
+          type: integer
+        zip:
+          type: string
+        country:
+          type: integer
+        rfc:
+          type: string
+        license_operator_id:
+          type: string
+        usage_id:
+          type: string
+        payment_method_id:
+          type: integer
+        curp:
+          type: string
+        category:
+          type: integer
+        seller_id:
+          type: integer
       required:
         - name
         - email
         - phone
-      properties:
-        name:
-          type: string
-          example: "Juan Pérez"
-        email:
-          type: string
-          example: "juan.perez@example.com"
-        phone:
-          type: string
-          example: "+525512345678"
-        display_name:
-          type: string
-          example: "Juan Pérez"
-        street:
-          type: string
-          example: "Av. Insurgentes 123"
-        street_name:
-          type: string
-          example: "Insurgentes"
-        street_number:
-          type: string
-          example: "123"
-        colony:
-          type: string
-          example: "Condesa"
-        city:
-          type: string
-          example: "Ciudad de México"
-        state:
-          type: integer
-          example: 9  # ID del estado en Odoo
-        zip:
-          type: string
-          example: "06100"
-        country:
-          type: integer
-          example: 156  # ID del país en Odoo (México)
-        rfc:
-          type: string
-          example: "PEJU800101XXX"
-        license_operator_id:
-          type: string
-          example: "LIC123456"
-        usage_id:
-          type: string
-          example: "G03"
-        payment_method_id:
-          type: integer
-          example: 1  # ID del método de pago en Odoo
-        curp:
-          type: string
-          example: "PEJU800101HDFXXX01"
-        category:
-          type: integer
-          example: 5  # ID de la categoría en Odoo
-        seller_id:
-          type: integer
-          example: 2  # ID del vendedor en Odoo
-
-    CreateCustomerResponse:
+    NewCustomerResponse:
       type: object
-      properties:
-        result:
-          type: string
-          example: "success"
-        userCreated:
-          type: object
-          properties:
-            id:
-              type: integer
-              example: 123
-            name:
-              type: string
-              example: "Juan Pérez"
-            email:
-              type: string
-              example: "juan.perez@example.com"
-            phone:
-              type: string
-              example: "+525512345678"
-
-    UpdateCustomerRequest:
-      type: object
-      required:
-        - id
       properties:
         id:
           type: integer
-          example: 123
         name:
           type: string
-          example: "Juan Pérez Actualizado"
-        display_name:
-          type: string
-          example: "Juan Pérez Actualizado"
-        street:
-          type: string
-          example: "Av. Reforma 456"
-        street_name:
-          type: string
-          example: "Reforma"
-        street_number:
-          type: string
-          example: "456"
-        colony:
-          type: string
-          example: "Polanco"
-        city:
-          type: string
-          example: "Ciudad de México"
-        state:
-          type: integer
-          example: 9
-        zip:
-          type: string
-          example: "06500"
-        country:
-          type: integer
-          example: 156
-        phone:
-          type: string
-          example: "+525598765432"
         email:
           type: string
-          example: "juan.perez.nuevo@example.com"
+        phone:
+          type: string
+      required:
+        - id
+        - name
+        - email
+        - phone
+    UpdateCustomerRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        display_name:
+          type: string
+        street:
+          type: string
+        street_name:
+          type: string
+        street_number:
+          type: string
+        colony:
+          type: string
+        city:
+          type: string
+        state:
+          type: integer
+        zip:
+          type: string
+        country:
+          type: integer
+        phone:
+          type: string
+        email:
+          type: string
         rfc:
           type: string
-          example: "PEJU800101XXX"
         license_operator_id:
           type: string
-          example: "LIC654321"
         usage_id:
           type: string
-          example: "P01"
         payment_method_id:
           type: integer
-          example: 2
         curp:
           type: string
-          example: "PEJU800101HDFXXX02"
         category:
           type: integer
-          example: 6
         seller_id:
           type: integer
-          example: 3
         company_id:
           type: integer
-          example: 3
-
-    UpdateCustomerResponse:
-      type: object
-      properties:
-        result:
-          type: string
-          example: "success"
-        message:
-          type: string
-          example: "Cliente actualizado correctamente"
-        updatedCustomer:
-          $ref: '#/components/schemas/Customer'
-
-    ErrorResponse:
-      type: object
-      properties:
-        result:
-          type: string
-          example: "error"
-        message:
-          type: string
-          example: "Faltan los campos obligatorios: name, email"
+      required:
+        - id
