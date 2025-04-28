@@ -7,8 +7,8 @@ info:
     name: Juan Francisco Santillan Valenzuela
     email: jfsantillan@impotrade.com.mx
 servers:
-  - url: https://your-odoo-instance.com
-    description: Servidor principal de Odoo
+  - url: https://becken-op-impotrade-test-impotrade-19276372.dev.odoo.com/
+    description: Estancia de Pruebas Odoo
 
 tags:
   - name: Customers
