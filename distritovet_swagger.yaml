@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Odoo Customer, Products, and Sales Orders API
-  description: API para gestionar clientes, productos y órdenes de venta en Odoo (Distrito Vet). Los endpoints están organizados en tres grupos principales **Customer**, **Products** y **Sales Orders**. Otros módulos pueden tener sus propios grupos de endpoints.
+  description: API para gestionar clientes, productos, órdenes de venta y facturas en Odoo (Distrito Vet). Los endpoints están organizados en grupos principales **Customer**, **Products**, **Sales Orders**, **Sellers** y **Invoices**. Otros módulos pueden tener sus propios grupos de endpoints.
   version: 1.0.0
 servers:
   - url: http://your_odoo_server
@@ -15,6 +15,8 @@ tags:
     description: Operaciones relacionadas con la gestión de órdenes de venta en Odoo (Distrito Vet)
   - name: Sellers
     description: Operaciones relacionadas con la gestión de vendedores en Odoo (Distrito Vet)
+  - name: Invoices
+    description: Operaciones relacionadas con la gestión de facturas en Odoo (Distrito Vet)
 paths:
   /api/customer/get:
     get:
@@ -709,6 +711,132 @@ paths:
             text/plain:
               schema:
                 type: string
+  /api/invoices:
+    get:
+      tags:
+        - Invoices
+      summary: Listar facturas paginadas
+      description: Retorna un listado paginado de facturas de la empresa con company_id = 3, con estado 'posted' y tipo 'out_invoice'. Permite ordenar por un campo específico.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Número de página
+        - name: itemsPerPage
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Cantidad de elementos por página
+        - name: orderBy
+          in: query
+          required: false
+          schema:
+            type: string
+            default: invoice_date
+          description: Campo por el cual ordenar (por ejemplo, 'invoice_date', 'name')
+        - name: ASC
+          in: query
+          required: false
+          schema:
+            type: string
+            default: "true"
+            enum: ["true", "false"]
+          description: Orden ascendente ('true') o descendente ('false')
+      responses:
+        '200':
+          description: Lista de facturas paginada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInvoices'
+        '400':
+          description: Parámetros de paginación inválidos
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/invoice_by_user:
+    get:
+      tags:
+        - Invoices
+      summary: Obtener facturas por cliente
+      description: Retorna un listado paginado de facturas para un cliente específico en la empresa con company_id = 3, con estado 'posted' y tipo 'out_invoice'.
+      parameters:
+        - name: customer_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID del cliente
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Número de página
+        - name: itemsPerPage
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Cantidad de elementos por página
+      responses:
+        '200':
+          description: Lista de facturas paginada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInvoices'
+        '400':
+          description: Falta el parámetro customer_id o parámetros inválidos
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/invoice_line:
+    get:
+      tags:
+        - Invoices
+      summary: Obtener las líneas de una factura por ID
+      description: Devuelve las líneas de una factura específica de la empresa con company_id = 3.
+      parameters:
+        - name: invoice_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID de la factura a consultar
+      responses:
+        '200':
+          description: Líneas de la factura encontradas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invoice_lines:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InvoiceLine'
+        '400':
+          description: Falta el parámetro invoice_id o ID inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: No se encontraron líneas para la factura
+          content:
+            text/plain:
+              schema:
+                type: string
 components:
   schemas:
     Customer:
@@ -1254,3 +1382,129 @@ components:
         - page
         - totalPages
         - sellers
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: integer
+        display_name:
+          type: string
+        name:
+          type: string
+        order_id:
+          type: integer
+          nullable: true
+        seller_id:
+          type: integer
+          nullable: true
+        customer_id:
+          type: integer
+        customer_shipping_id:
+          type: integer
+          nullable: true
+        payment_state:
+          type: string
+        move_type:
+          type: string
+        invoice_lines_ids:
+          type: array
+          items:
+            type: integer
+        amount_residual:
+          type: number
+        amount_total:
+          type: number
+        tax_totals:
+          type: object
+          nullable: true
+        sat_status:
+          type: string
+          nullable: true
+        payment_term_id:
+          type: integer
+          nullable: true
+        payment_reference:
+          type: string
+          nullable: true
+        invoice_date:
+          type: string
+          format: date
+        tax_country_id:
+          type: integer
+          nullable: true
+        journal_id:
+          type: integer
+        currency_id:
+          type: integer
+      required:
+        - id
+        - name
+        - customer_id
+        - move_type
+        - amount_residual
+        - amount_total
+        - invoice_date
+        - journal_id
+        - currency_id
+    PaginatedInvoices:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+        itemsPerPage:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+        nextPage:
+          type: integer
+          nullable: true
+        previousPage:
+          type: integer
+          nullable: true
+        invoices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+      required:
+        - totalItems
+        - itemsPerPage
+        - page
+        - totalPages
+        - invoices
+    InvoiceLine:
+      type: object
+      properties:
+        id:
+          type: integer
+        product_id:
+          type: integer
+          nullable: true
+        product_name:
+          type: string
+          nullable: true
+        quantity:
+          type: number
+        price_unit:
+          type: number
+        discount:
+          type: number
+          nullable: true
+        price_subtotal:
+          type: number
+        tax_ids:
+          type: array
+          items:
+            type: integer
+        account_id:
+          type: integer
+        sale_line_id:
+          type: integer
+          nullable: true
+      required:
+        - id
+        - quantity
+        - price_unit
+        - price_subtotal
+        - account_id
