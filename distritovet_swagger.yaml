@@ -13,6 +13,8 @@ tags:
     description: Operaciones relacionadas con la gestión de productos en Odoo (Distrito Vet)
   - name: Sales Orders
     description: Operaciones relacionadas con la gestión de órdenes de venta en Odoo (Distrito Vet)
+  - name: Sellers
+    description: Operaciones relacionadas con la gestión de vendedores en Odoo (Distrito Vet)
 paths:
   /api/customer/get:
     get:
@@ -641,6 +643,72 @@ paths:
             text/plain:
               schema:
                 type: string
+  /api/sellers:
+    get:
+      tags:
+        - Sellers
+      summary: Listar vendedores paginados
+      description: Retorna un listado paginado de vendedores de la empresa con company_id = 3 y crm_team_id = 12.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Número de página
+        - name: itemsPerPage
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Cantidad de elementos por página
+      responses:
+        '200':
+          description: Lista de vendedores paginada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSellers'
+        '400':
+          description: Parámetros de paginación inválidos
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/seller:
+    get:
+      tags:
+        - Sellers
+      summary: Obtener un vendedor por ID
+      description: Devuelve la información de un vendedor específico de la empresa con company_id = 3.
+      parameters:
+        - name: seller_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID del vendedor a consultar
+      responses:
+        '200':
+          description: Vendedor encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seller'
+        '400':
+          description: Falta el parámetro seller_id o ID inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Vendedor no encontrado
+          content:
+            text/plain:
+              schema:
+                type: string
 components:
   schemas:
     Customer:
@@ -1140,3 +1208,49 @@ components:
         - partner_id
         - partner_shipping_id
         - order_line
+    Seller:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        company_id:
+          type: integer
+      required:
+        - id
+        - name
+        - company_id
+    PaginatedSellers:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+        itemsPerPage:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+        nextPage:
+          type: integer
+          nullable: true
+        previousPage:
+          type: integer
+          nullable: true
+        sellers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Seller'
+      required:
+        - totalItems
+        - itemsPerPage
+        - page
+        - totalPages
+        - sellers
