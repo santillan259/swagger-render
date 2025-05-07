@@ -1,7 +1,8 @@
+```yaml
 openapi: 3.0.0
 info:
-  title: Odoo Customer and Products API
-  description: API para gestionar clientes y productos en Odoo (Distrito Vet). Los endpoints están organizados en dos grupos principales **Customer** y **Products**. Otros módulos pueden tener sus propios grupos de endpoints.
+  title: Odoo Customer, Products, and Sales Orders API
+  description: API para gestionar clientes, productos y órdenes de venta en Odoo (Distrito Vet). Los endpoints están organizados en tres grupos principales **Customer**, **Products** y **Sales Orders**. Otros módulos pueden tener sus propios grupos de endpoints.
   version: 1.0.0
 servers:
   - url: http://your_odoo_server
@@ -11,6 +12,8 @@ tags:
     description: Operaciones relacionadas con la gestión de clientes en Odoo (Distrito Vet)
   - name: Products
     description: Operaciones relacionadas con la gestión de productos en Odoo (Distrito Vet)
+  - name: Sales Orders
+    description: Operaciones relacionadas con la gestión de órdenes de venta en Odoo (Distrito Vet)
 paths:
   /api/customer/get:
     get:
@@ -417,6 +420,228 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Product'
+  /api/orders_by_user:
+    get:
+      tags:
+        - Sales Orders
+      summary: Obtener órdenes de venta por cliente
+      description: Retorna un listado paginado de órdenes de venta para un cliente específico en la empresa con company_id = 3.
+      parameters:
+        - name: customer_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID del cliente
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Número de página
+        - name: itemsPerPage
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Cantidad de elementos por página
+      responses:
+        '200':
+          description: Lista de órdenes paginada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrders'
+        '400':
+          description: Falta el parámetro customer_id o parámetros inválidos
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/order_get:
+    get:
+      tags:
+        - Sales Orders
+      summary: Obtener una orden de venta por ID
+      description: Devuelve la información de una orden de venta específica de la empresa con company_id = 3.
+      parameters:
+        - name: order_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID de la orden a consultar
+      responses:
+        '200':
+          description: Orden encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleOrder'
+        '400':
+          description: Falta el parámetro order_id o ID inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Orden no encontrada
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/order_lines_get:
+    get:
+      tags:
+        - Sales Orders
+      summary: Obtener las líneas de una orden de venta por ID
+      description: Devuelve las líneas de una orden de venta específica de la empresa con company_id = 3.
+      parameters:
+        - name: order_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID de la orden a consultar
+      responses:
+        '200':
+          description: Líneas de la orden encontradas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order_lines:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SaleOrderLine'
+        '400':
+          description: Falta el parámetro order_id o ID inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: No se encontraron líneas para la orden
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/order/get:
+    get:
+      tags:
+        - Sales Orders
+      summary: Listar órdenes de venta paginadas
+      description: Retorna un listado paginado de órdenes de venta de la empresa con company_id = 3.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Número de página
+        - name: itemsPerPage
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Cantidad de elementos por página
+      responses:
+        '200':
+          description: Lista de órdenes paginada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrders'
+        '400':
+          description: Parámetros de paginación inválidos
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/order/post:
+    post:
+      tags:
+        - Sales Orders
+      summary: Crear una nueva orden de venta
+      description: Crea una orden de venta en Odoo para la empresa con company_id = 3.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '200':
+          description: Orden creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    enum: [success]
+                  order_id:
+                    type: integer
+                  order_name:
+                    type: string
+        '400':
+          description: Faltan campos obligatorios o error en la creación
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    enum: [error]
+                  message:
+                    type: string
+  /api/order/search:
+    get:
+      tags:
+        - Sales Orders
+      summary: Buscar órdenes de venta por nombre o cliente
+      description: Busca órdenes de venta en la empresa con company_id = 3 según un texto de búsqueda (en nombre de la orden o nombre del cliente).
+      parameters:
+        - name: search
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Texto para buscar (en nombre de la orden o nombre del cliente)
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Número de página
+        - name: itemsPerPage
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Cantidad de elementos por página
+      responses:
+        '200':
+          description: Lista de órdenes encontradas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrders'
+        '400':
+          description: Falta el parámetro de búsqueda o parámetros inválidos
+          content:
+            text/plain:
+              schema:
+                type: string
 components:
   schemas:
     Customer:
@@ -736,3 +961,184 @@ components:
         - page
         - totalPages
         - products
+    SaleOrder:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        order_date:
+          type: string
+          format: date-time
+        delivery_status:
+          type: string
+          nullable: true
+        warehouse_id:
+          type: integer
+          nullable: true
+        invoice_status:
+          type: string
+          nullable: true
+        seller_id:
+          type: integer
+          nullable: true
+        tax_total:
+          type: object
+          nullable: true
+        order_line_ids:
+          type: array
+          items:
+            type: integer
+        payment_term_id:
+          type: integer
+          nullable: true
+        tax_country_id:
+          type: integer
+          nullable: true
+        currency_id:
+          type: integer
+          nullable: true
+        price_list_id:
+          type: integer
+          nullable: true
+        allowed_pricelist_ids:
+          type: array
+          items:
+            type: integer
+        customer_shipping_id:
+          type: integer
+          nullable: true
+        customer_invoice_id:
+          type: integer
+          nullable: true
+        customer_id:
+          type: integer
+      required:
+        - id
+        - name
+        - order_date
+        - customer_id
+    PaginatedOrders:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+        itemsPerPage:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+        nextPage:
+          type: integer
+          nullable: true
+        previousPage:
+          type: integer
+          nullable: true
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaleOrder'
+      required:
+        - totalItems
+        - itemsPerPage
+        - page
+        - totalPages
+        - orders
+    SaleOrderLine:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        product_id:
+          type: integer
+          nullable: true
+        product_template_id:
+          type: integer
+          nullable: true
+        product_quantity:
+          type: number
+        product_quantity_delivered:
+          type: number
+        product_quantity_invoiced:
+          type: number
+        product_quantity_to_deliver:
+          type: number
+        product_quantity_to_invoice:
+          type: number
+        unity_of_measurement_id:
+          type: integer
+          nullable: true
+        product_type:
+          type: string
+          nullable: true
+        warehouse_id:
+          type: integer
+          nullable: true
+        move_ids:
+          type: array
+          items:
+            type: integer
+        quantity_delivered_method:
+          type: string
+          nullable: true
+        price_unit:
+          type: number
+        price_subtotal:
+          type: number
+        tax_id:
+          type: array
+          items:
+            type: integer
+        discount:
+          type: number
+          nullable: true
+        state:
+          type: string
+          nullable: true
+        invoice_status:
+          type: string
+          nullable: true
+        currency_id:
+          type: integer
+          nullable: true
+        price_tax:
+          type: number
+          nullable: true
+      required:
+        - id
+        - name
+        - product_quantity
+        - price_unit
+        - price_subtotal
+    CreateOrderRequest:
+      type: object
+      properties:
+        partner_id:
+          type: integer
+          description: ID del cliente
+        partner_shipping_id:
+          type: integer
+          description: ID de la dirección de envío
+        order_line:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: integer
+                description: ID del producto
+              product_quantity:
+                type: number
+                description: Cantidad del producto
+            required:
+              - product_id
+              - product_quantity
+      required:
+        - partner_id
+        - partner_shipping_id
+        - order_line
+```
