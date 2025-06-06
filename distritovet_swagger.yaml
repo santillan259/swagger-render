@@ -201,7 +201,7 @@ paths:
                         type: string
 
   /api/customer/post_secondary:
-      post:
+    get:
       tags:
         - Customer
       summary: Crear un cliente con dirección secundaria
