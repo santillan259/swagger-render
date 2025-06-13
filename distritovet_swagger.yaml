@@ -1,3 +1,4 @@
+```yaml
 openapi: 3.0.0
 info:
   title: Odoo Customer, Products, and Sales Orders API
@@ -17,6 +18,8 @@ tags:
     description: Operaciones relacionadas con la gestión de vendedores en Odoo (Distrito Vet)
   - name: Invoices
     description: Operaciones relacionadas con la gestión de facturas en Odoo (Distrito Vet)
+  - name: Geo Data
+    description: Operaciones relacionadas con países, estados, ciudades y localidades
 paths:
   /api/customer/get:
     get:
@@ -199,7 +202,6 @@ paths:
                         enum: [error]
                       message:
                         type: string
-
   /api/customer/post_secondary:
     get:
       tags:
@@ -782,7 +784,7 @@ paths:
             text/plain:
               schema:
                 type: string
-  /api/seller:
+  /api/sellerbyid:
     get:
       tags:
         - Sellers
@@ -804,6 +806,38 @@ paths:
                 $ref: '#/components/schemas/Seller'
         '400':
           description: Falta el parámetro seller_id o ID inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Vendedor no encontrado
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/seller/by_email:
+    get:
+      tags:
+        - Sellers
+      summary: Obtener un vendedor por email
+      description: Devuelve la información de un vendedor específico de la empresa con company_id = 3, usando su email como parámetro de búsqueda.
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Email del vendedor a consultar
+      responses:
+        '200':
+          description: Vendedor encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seller'
+        '400':
+          description: Falta el parámetro email
           content:
             text/plain:
               schema:
@@ -936,6 +970,375 @@ paths:
                 type: string
         '404':
           description: No se encontraron líneas para la factura
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/countries:
+    get:
+      tags:
+        - Geo Data
+      summary: Listar países
+      description: Devuelve una lista de todos los países disponibles en Odoo.
+      responses:
+        '200':
+          description: Lista de países
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  countries:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        code_country:
+                          type: string
+                      required:
+                        - id
+                        - name
+                        - code_country
+  /api/country_id:
+    get:
+      tags:
+        - Geo Data
+      summary: Obtener país por ID
+      description: Devuelve la información de un país a partir de su ID.
+      parameters:
+        - name: country_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID del país a consultar
+      responses:
+        '200':
+          description: Información del país
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  country:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      code_country:
+                        type: string
+                    required:
+                      - id
+                      - name
+                      - code_country
+        '400':
+          description: Parámetro faltante o inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: País no encontrado
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/state_by_country:
+    get:
+      tags:
+        - Geo Data
+      summary: Listar estados por país
+      description: Devuelve los estados asociados a un país específico.
+      parameters:
+        - name: country_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID del país para filtrar los estados
+      responses:
+        '200':
+          description: Lista de estados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  states:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        code_country:
+                          type: string
+                      required:
+                        - id
+                        - name
+                        - code_country
+        '400':
+          description: Parámetro faltante o inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Estados no encontrados
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/state_id:
+    get:
+      tags:
+        - Geo Data
+      summary: Obtener estado por ID
+      description: Devuelve la información de un estado a partir de su ID.
+      parameters:
+        - name: state_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID del estado a consultar
+      responses:
+        '200':
+          description: Información del estado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      code_country:
+                        type: string
+                    required:
+                      - id
+                      - name
+                      - code_country
+        '400':
+          description: Parámetro faltante o inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Estado no encontrado
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/cities_by_state:
+    get:
+      tags:
+        - Geo Data
+      summary: Listar ciudades por estado
+      description: Devuelve las ciudades asociadas a un estado específico.
+      parameters:
+        - name: state_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID del estado para filtrar las ciudades
+      responses:
+        '200':
+          description: Lista de ciudades
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        state_id:
+                          type: integer
+                        state_name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                        - state_id
+                        - state_name
+        '400':
+          description: Parámetro faltante o inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Ciudades no encontradas
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/city_id:
+    get:
+      tags:
+        - Geo Data
+      summary: Obtener ciudad por ID
+      description: Devuelve la información de una ciudad específica.
+      parameters:
+        - name: city_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID de la ciudad a consultar
+      responses:
+        '200':
+          description: Información de la ciudad
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  city:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      state_id:
+                        type: integer
+                      state_name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                      - state_id
+                      - state_name
+        '400':
+          description: Parámetro faltante o inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Ciudad no encontrada
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/localities_by_state:
+    get:
+      tags:
+        - Geo Data
+      summary: Listar localidades por estado
+      description: Devuelve las localidades asociadas a un estado específico.
+      parameters:
+        - name: state_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID del estado para filtrar las localidades
+      responses:
+        '200':
+          description: Lista de localidades
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  localities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        state_id:
+                          type: integer
+                        state_name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                        - state_id
+                        - state_name
+        '400':
+          description: Parámetro faltante o inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Localidades no encontradas
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/locality_id:
+    get:
+      tags:
+        - Geo Data
+      summary: Obtener localidad por ID
+      description: Devuelve la información de una localidad específica.
+      parameters:
+        - name: locality_id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID de la localidad a consultar
+      responses:
+        '200':
+          description: Información de la localidad
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  locality:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      state_id:
+                        type: integer
+                      state_name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                      - state_id
+                      - state_name
+        '400':
+          description: Parámetro faltante o inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Localidad no encontrada
           content:
             text/plain:
               schema:
@@ -1611,3 +2014,4 @@ components:
         - price_unit
         - price_subtotal
         - account_id
+```
