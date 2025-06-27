@@ -41,76 +41,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
-                  display_name:
-                    type: string
-                  street:
-                    type: string
-                    nullable: true
-                  street_name:
-                    type: string
-                    nullable: true
-                  street_number:
-                    type: string
-                    nullable: true
-                  colony:
-                    type: string
-                    nullable: true
-                  city:
-                    type: string
-                    nullable: true
-                  state:
-                    type: string
-                    nullable: true
-                  zip:
-                    type: string
-                    nullable: true
-                  country:
-                    type: string
-                    nullable: true
-                  phone:
-                    type: string
-                    nullable: true
-                  mobile:
-                    type: string
-                    nullable: true
-                  email:
-                    type: string
-                    nullable: true
-                  rfc:
-                    type: string
-                    nullable: true
-                  license_operator_id:
-                    type: string
-                    nullable: true
-                  usage_id:
-                    type: string
-                    nullable: true
-                  payment_method_id:
-                    type: string
-                    nullable: true
-                  curp:
-                    type: string
-                    nullable: true
-                  category:
-                    type: string
-                    nullable: true
-                  seller_id:
-                    type: string
-                    nullable: true
-                  company_id:
-                    type: integer
-                  company_name:
-                    type: string
-                required:
-                  - id
-                  - name
-                  - company_id
+                $ref: '#/components/schemas/Customer'
         '400':
           description: Falta el parámetro ID o ID inválido
           content:
@@ -150,98 +81,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  totalItems:
-                    type: integer
-                  itemsPerPage:
-                    type: integer
-                  page:
-                    type: integer
-                  totalPages:
-                    type: integer
-                  nextPage:
-                    type: integer
-                    nullable: true
-                  previousPage:
-                    type: integer
-                    nullable: true
-                  customers:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                        display_name:
-                          type: string
-                        street:
-                          type: string
-                          nullable: true
-                        street_name:
-                          type: string
-                          nullable: true
-                        street_number:
-                          type: string
-                          nullable: true
-                        colony:
-                          type: string
-                          nullable: true
-                        city:
-                          type: string
-                          nullable: true
-                        state:
-                          type: string
-                          nullable: true
-                        zip:
-                          type: string
-                          nullable: true
-                        country:
-                          type: string
-                          nullable: true
-                        phone:
-                          type: string
-                          nullable: true
-                        email:
-                          type: string
-                          nullable: true
-                        rfc:
-                          type: string
-                          nullable: true
-                        license_operator_id:
-                          type: string
-                          nullable: true
-                        usage_id:
-                          type: string
-                          nullable: true
-                        payment_method_id:
-                          type: string
-                          nullable: true
-                        curp:
-                          type: string
-                          nullable: true
-                        category:
-                          type: string
-                          nullable: true
-                        seller_id:
-                          type: string
-                          nullable: true
-                        company_id:
-                          type: integer
-                        company_name:
-                          type: string
-                      required:
-                        - id
-                        - name
-                        - company_id
-                required:
-                  - totalItems
-                  - itemsPerPage
-                  - page
-                  - totalPages
-                  - customers
+                $ref: '#/components/schemas/PaginatedCustomers'
         '400':
           description: Parámetros de paginación inválidos
           content:
@@ -259,53 +99,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                email:
-                  type: string
-                phone:
-                  type: string
-                whatsapp_phone:
-                  type: string
-                  description: Número de WhatsApp del cliente
-                display_name:
-                  type: string
-                street:
-                  type: string
-                street_name:
-                  type: string
-                street_number:
-                  type: string
-                colony:
-                  type: string
-                city:
-                  type: string
-                state:
-                  type: integer
-                zip:
-                  type: string
-                country:
-                  type: integer
-                rfc:
-                  type: string
-                license_operator_id:
-                  type: string
-                usage_id:
-                  type: string
-                payment_method_id:
-                  type: integer
-                curp:
-                  type: string
-                category:
-                  type: integer
-                seller_id:
-                  type: integer
-              required:
-                - name
-                - email
-                - phone
+              $ref: '#/components/schemas/CreateCustomerRequest'
       responses:
         '200':
           description: Cliente creado exitosamente
@@ -318,21 +112,7 @@ paths:
                     type: string
                     enum: [success]
                   userCreated:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
-                      email:
-                        type: string
-                      phone:
-                        type: string
-                    required:
-                      - id
-                      - name
-                      - email
-                      - phone
+                    $ref: '#/components/schemas/NewCustomerResponse'
         '400':
           description: Faltan campos obligatorios o error en la creación
           content:
@@ -350,59 +130,13 @@ paths:
       tags:
         - Customer
       summary: Actualizar un cliente existente
-      description: Actualiza un cliente en Odoo con los datos proporcionados (company_id = 3). El cuerpo de la solicitud debe estar en formato JSON-RPC.
+      description: Actualiza un cliente en Odoo con los datos proporcionados (company_id = 3). El cuerpo de la solicitud debe estar en formato JSON.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  description: ID del cliente a actualizar
-                name:
-                  type: string
-                display_name:
-                  type: string
-                street:
-                  type: string
-                street_name:
-                  type: string
-                street_number:
-                  type: string
-                colony:
-                  type: string
-                city:
-                  type: string
-                state:
-                  type: integer
-                zip:
-                  type: string
-                country:
-                  type: integer
-                phone:
-                  type: string
-                email:
-                  type: string
-                rfc:
-                  type: string
-                license_operator_id:
-                  type: string
-                usage_id:
-                  type: string
-                payment_method_id:
-                  type: integer
-                curp:
-                  type: string
-                category:
-                  type: integer
-                seller_id:
-                  type: integer
-                company_id:
-                  type: integer
-              required:
-                - id
+              $ref: '#/components/schemas/UpdateCustomerRequest'
       responses:
         '200':
           description: Cliente actualizado exitosamente
@@ -417,78 +151,9 @@ paths:
                   message:
                     type: string
                   updatedCustomer:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
-                      display_name:
-                        type: string
-                      street:
-                        type: string
-                        nullable: true
-                      street_name:
-                        type: string
-                        nullable: true
-                      street_number:
-                        type: string
-                        nullable: true
-                      colony:
-                        type: string
-                        nullable: true
-                      city:
-                        type: string
-                        nullable: true
-                      state:
-                        type: string
-                        nullable: true
-                      zip:
-                        type: string
-                        nullable: true
-                      country:
-                        type: string
-                        nullable: true
-                      phone:
-                        type: string
-                        nullable: true
-                      mobile:
-                        type: string
-                        nullable: true
-                      email:
-                        type: string
-                        nullable: true
-                      rfc:
-                        type: string
-                        nullable: true
-                      license_operator_id:
-                        type: string
-                        nullable: true
-                      usage_id:
-                        type: string
-                        nullable: true
-                      payment_method_id:
-                        type: string
-                        nullable: true
-                      curp:
-                        type: string
-                        nullable: true
-                      category:
-                        type: string
-                        nullable: true
-                      seller_id:
-                        type: string
-                        nullable: true
-                      company_id:
-                        type: integer
-                      company_name:
-                        type: string
-                    required:
-                      - id
-                      - name
-                      - company_id
+                    $ref: '#/components/schemas/Customer'
         '400':
-          description: Falta el campo ID, no se enviaron campos válidos o formato JSON-RPC inválido
+          description: Falta el campo ID, no se enviaron campos válidos o formato JSON inválido
           content:
             application/json:
               schema:
@@ -522,63 +187,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                email:
-                  type: string
-                phone:
-                  type: string
-                whatsapp_phone:
-                  type: string
-                  description: Número de WhatsApp del cliente
-                rfc:
-                  type: string
-                curp:
-                  type: string
-                license_operator_id:
-                  type: string
-                usage_id:
-                  type: string
-                payment_method_id:
-                  type: integer
-                street:
-                  type: string
-                zip:
-                  type: string
-                city:
-                  type: string
-                state:
-                  type: integer
-                country:
-                  type: integer
-                category:
-                  type: integer
-                seller_id:
-                  type: integer
-                contact_name:
-                  type: string
-                contact_street:
-                  type: string
-                contact_zip:
-                  type: string
-                contact_city:
-                  type: string
-                contact_state:
-                  type: integer
-                contact_country:
-                  type: integer
-                contact_phone:
-                  type: string
-                contact_email:
-                  type: string
-                contact_type:
-                  type: string
-              required:
-                - name
-                - email
-                - phone
+              $ref: '#/components/schemas/CreateCustomerSecondaryRequest'
       responses:
         '200':
           description: Cliente creado exitosamente
@@ -591,21 +200,7 @@ paths:
                     type: string
                     enum: [success]
                   userCreated:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
-                      email:
-                        type: string
-                      phone:
-                        type: string
-                    required:
-                      - id
-                      - name
-                      - email
-                      - phone
+                    $ref: '#/components/schemas/NewCustomerResponse'
         '400':
           description: Faltan campos obligatorios o error de validación
           content:
@@ -663,98 +258,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  totalItems:
-                    type: integer
-                  itemsPerPage:
-                    type: integer
-                  page:
-                    type: integer
-                  totalPages:
-                    type: integer
-                  nextPage:
-                    type: integer
-                    nullable: true
-                  previousPage:
-                    type: integer
-                    nullable: true
-                  customers:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                        display_name:
-                          type: string
-                        street:
-                          type: string
-                          nullable: true
-                        street_name:
-                          type: string
-                          nullable: true
-                        street_number:
-                          type: string
-                          nullable: true
-                        colony:
-                          type: string
-                          nullable: true
-                        city:
-                          type: string
-                          nullable: true
-                        state:
-                          type: string
-                          nullable: true
-                        zip:
-                          type: string
-                          nullable: true
-                        country:
-                          type: string
-                          nullable: true
-                        phone:
-                          type: string
-                          nullable: true
-                        email:
-                          type: string
-                          nullable: true
-                        rfc:
-                          type: string
-                          nullable: true
-                        license_operator_id:
-                          type: string
-                          nullable: true
-                        usage_id:
-                          type: string
-                          nullable: true
-                        payment_method_id:
-                          type: string
-                          nullable: true
-                        curp:
-                          type: string
-                          nullable: true
-                        category:
-                          type: string
-                          nullable: true
-                        seller_id:
-                          type: string
-                          nullable: true
-                        company_id:
-                          type: integer
-                        company_name:
-                          type: string
-                      required:
-                        - id
-                        - name
-                        - company_id
-                required:
-                  - totalItems
-                  - itemsPerPage
-                  - page
-                  - totalPages
-                  - customers
+                $ref: '#/components/schemas/PaginatedCustomers'
         '400':
           description: Falta el parámetro de búsqueda o parámetros inválidos
           content:
@@ -766,7 +270,7 @@ paths:
       tags:
         - Customer
       summary: Verificar si existe un cliente por email
-      description: Verifica si un cliente con el email proporcionado existe en la empresa con company_id = 3.
+      description: Verifica si un cliente con el email proporcionado existe en la empresa con company_id = 3 y customer_rank = 1.
       parameters:
         - name: email
           in: query
@@ -796,6 +300,143 @@ paths:
                 properties:
                   error:
                     type: string
+  /api/customer/add_secondary_address:
+    post:
+      tags:
+        - Customer
+      summary: Agregar una dirección secundaria a un cliente existente
+      description: Crea una dirección secundaria para un cliente existente en la empresa con company_id = 3.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer_id:
+                  type: integer
+                  description: ID del cliente al que se le agrega la dirección secundaria
+                contact_name:
+                  type: string
+                  description: Nombre del contacto secundario
+                contact_street:
+                  type: string
+                  description: Calle de la dirección secundaria
+                contact_zip:
+                  type: string
+                  description: Código postal de la dirección secundaria
+                contact_city:
+                  type: string
+                  description: Ciudad de la dirección secundaria
+                contact_state:
+                  type: integer
+                  description: ID del estado de la dirección secundaria
+                contact_country:
+                  type: integer
+                  description: ID del país de la dirección secundaria
+                contact_phone:
+                  type: string
+                  description: Teléfono del contacto secundario
+                contact_email:
+                  type: string
+                  description: Email del contacto secundario
+                contact_type:
+                  type: string
+                  description: Tipo de contacto (por ejemplo, 'other')
+                  default: other
+              required:
+                - customer_id
+                - contact_street
+      responses:
+        '200':
+          description: Dirección secundaria creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    enum: [success]
+                  contactCreated:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      email:
+                        type: string
+                        nullable: true
+                      phone:
+                        type: string
+                        nullable: true
+                    required:
+                      - id
+                      - name
+        '400':
+          description: Falta el campo customer_id o datos inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    enum: [error]
+                  message:
+                    type: string
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    enum: [error]
+                  message:
+                    type: string
+  /api/customer/with_contacts:
+    get:
+      tags:
+        - Customer
+      summary: Obtener un cliente con sus direcciones secundarias
+      description: Devuelve la información de un cliente específico y sus direcciones secundarias asociadas en la empresa con company_id = 3.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID del cliente a consultar
+      responses:
+        '200':
+          description: Cliente y contactos encontrados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customer:
+                    $ref: '#/components/schemas/Customer'
+                  contacts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contact'
+        '400':
+          description: Falta el parámetro ID o ID inválido
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Cliente no encontrado en la empresa DistritoVet
+          content:
+            text/plain:
+              schema:
+                type: string
   /api/products/get:
     get:
       tags:
@@ -1865,6 +1506,10 @@ components:
         usage_id:
           type: string
           nullable: true
+        fiscal_regime:
+          type: string
+          nullable: true
+          description: Régimen fiscal del cliente (por ejemplo, 601, 603)
         payment_method_id:
           type: string
           nullable: true
@@ -1944,6 +1589,9 @@ components:
           type: integer
         rfc:
           type: string
+        fiscal_regime:
+          type: string
+          description: Régimen fiscal del cliente (por ejemplo, 601, 603)
         license_operator_id:
           type: string
         usage_id:
@@ -1956,6 +1604,67 @@ components:
           type: integer
         seller_id:
           type: integer
+      required:
+        - name
+        - email
+        - phone
+    CreateCustomerSecondaryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        whatsapp_phone:
+          type: string
+          description: Número de WhatsApp del cliente
+        rfc:
+          type: string
+        fiscal_regime:
+          type: string
+          description: Régimen fiscal del cliente (por ejemplo, 601, 603)
+        curp:
+          type: string
+        license_operator_id:
+          type: string
+        usage_id:
+          type: string
+        payment_method_id:
+          type: integer
+        street:
+          type: string
+        zip:
+          type: string
+        city:
+          type: string
+        state:
+          type: integer
+        country:
+          type: integer
+        category:
+          type: integer
+        seller_id:
+          type: integer
+        contact_name:
+          type: string
+        contact_street:
+          type: string
+        contact_zip:
+          type: string
+        contact_city:
+          type: string
+        contact_state:
+          type: integer
+        contact_country:
+          type: integer
+        contact_phone:
+          type: string
+        contact_email:
+          type: string
+        contact_type:
+          type: string
       required:
         - name
         - email
@@ -1976,11 +1685,12 @@ components:
         - name
         - email
         - phone
-    JsonRpcUpdateCustomerRequest:
+    UpdateCustomerRequest:
       type: object
       properties:
         id:
           type: integer
+          description: ID del cliente a actualizar
         name:
           type: string
         display_name:
@@ -2007,6 +1717,9 @@ components:
           type: string
         rfc:
           type: string
+        fiscal_regime:
+          type: string
+          description: Régimen fiscal del cliente (por ejemplo, 601, 603)
         license_operator_id:
           type: string
         usage_id:
@@ -2023,6 +1736,40 @@ components:
           type: integer
       required:
         - id
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        street:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        zip:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+      required:
+        - id
+        - name
     Product:
       type: object
       properties:
