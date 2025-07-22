@@ -536,13 +536,14 @@ paths:
           required: false
           schema:
             type: string
-          description: Lista de IDs de categorías separada por comas (ejemplo: '1,2,3')
+            default: 10
+          description: Lista de IDs de categorías separada por comas
         - name: brand_ids
           in: query
           required: false
           schema:
             type: string
-          description: Lista de IDs de marcas separada por comas (ejemplo: '4,5,6')
+          description: Lista de IDs de marcas separada por comas 
       responses:
         '200':
           description: Lista de productos encontrados
