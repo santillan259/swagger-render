@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: Odoo Customer, Products, and Sales Orders API
-  description: API para gestionar clientes, productos, órdenes de venta y facturas en Odoo (Distrito Vet). Los endpoints están organizados en grupos principales **Customer**, **Products**, **Sales Orders**, **Sellers**, **Invoices** y **Inventory**. Otros módulos pueden tener sus propios grupos de endpoints.
+  title: Odoo Customer, Products, Sales Orders, Sellers, Invoices, Inventory, and Geo Data API
+  description: API para gestionar clientes, productos, categorías de productos, marcas, órdenes de venta, vendedores, facturas, inventario y datos geográficos en Odoo (Distrito Vet). Los endpoints están organizados en grupos principales **Customer**, **Products**, **Sales Orders**, **Sellers**, **Invoices**, **Inventory** y **Geo Data**.
   version: 1.0.0
 servers:
   - url: http://your_odoo_server
@@ -10,7 +10,7 @@ tags:
   - name: Customer
     description: Operaciones relacionadas con la gestión de clientes en Odoo (Distrito Vet)
   - name: Products
-    description: Operaciones relacionadas con la gestión de productos en Odoo (Distrito Vet)
+    description: Operaciones relacionadas con la gestión de productos, categorías y marcas en Odoo (Distrito Vet)
   - name: Sales Orders
     description: Operaciones relacionadas con la gestión de órdenes de venta en Odoo (Distrito Vet)
   - name: Sellers
@@ -512,9 +512,10 @@ paths:
       parameters:
         - name: search
           in: query
-          required: true
+          required: false
           schema:
             type: string
+            default: ''
           description: Texto para buscar (en nombre o código del producto)
         - name: page
           in: query
@@ -535,13 +536,13 @@ paths:
           required: false
           schema:
             type: string
-          description: "Lista de IDs de categorías separada por comas ejemplo: '1,2,3'"
+          description: Lista de IDs de categorías separada por comas (ejemplo: '1,2,3')
         - name: brand_ids
           in: query
           required: false
           schema:
             type: string
-          description: "Lista de IDs de marcas separada por comas ejemplo: 4,5,6"
+          description: Lista de IDs de marcas separada por comas (ejemplo: '4,5,6')
       responses:
         '200':
           description: Lista de productos encontrados
@@ -550,7 +551,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedProducts'
         '400':
-          description: Falta el parámetro de búsqueda o parámetros inválidos
+          description: Parámetros inválidos
           content:
             text/plain:
               schema:
@@ -588,6 +589,42 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Product'
+  /api/product/categories:
+    get:
+      tags:
+        - Products
+      summary: Listar categorías de productos
+      description: Devuelve una lista de todas las categorías de productos disponibles en Odoo para la empresa con company_id = 3.
+      responses:
+        '200':
+          description: Lista de categorías de productos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductCategory'
+  /api/product/marca:
+    get:
+      tags:
+        - Products
+      summary: Listar marcas de productos
+      description: Devuelve una lista de todas las marcas de productos disponibles en Odoo para la empresa con company_id = 3.
+      responses:
+        '200':
+          description: Lista de marcas de productos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  marcas:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductBrand'
   /api/inventario_general:
     get:
       tags:
@@ -1794,6 +1831,8 @@ components:
           nullable: true
         quantity_available:
           type: number
+        qty_company_available:
+          type: number
         quantity_virtual_available:
           type: number
         uom_name:
@@ -1843,6 +1882,7 @@ components:
         - active
         - list_price
         - quantity_available
+        - qty_company_available
         - quantity_virtual_available
         - sales_count
         - company_id
@@ -1873,6 +1913,38 @@ components:
         - page
         - totalPages
         - products
+    ProductCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID de la categoría
+        name:
+          type: string
+          description: Nombre de la categoría
+        parent_id:
+          type: integer
+          description: ID de la categoría padre, si existe
+          nullable: true
+        parent_name:
+          type: string
+          description: Nombre de la categoría padre, si existe
+          nullable: true
+      required:
+        - id
+        - name
+    ProductBrand:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID de la marca
+        name:
+          type: string
+          description: Nombre de la marca
+      required:
+        - id
+        - name
     SaleOrder:
       type: object
       properties:
